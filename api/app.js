@@ -1,9 +1,9 @@
-const Application = require("./toolbox/application");
-const config = require("@api/config").database;
+const Application = require("./srcs/application");
 
 module.exports = new Application({
-  database: config.model,
+  name: "Éditions Bruno Doucey",
+  database: "postgresql",
   config: {
-    database: config.name,
+    database: "test"
   }
 });

@@ -4,90 +4,106 @@ const redis = require("redis");
 const session = require("express-session");
 let RedisStore = require("connect-redis")(session);
 let redisClient = redis.createClient();
-
-const Config = require("@lib/config");
-
-const config = new Config(require("@api/config"));
-
-
-//Router
-//const routerUser = require("./router/users.js");
-
-/* TODO move to model part parse */
-
-const glob = require("glob");
+require("dotenv").config();
+const { createIPX, createIPXMiddleware } = require("ipx");
+const apiApplication = require("./app");
+const ipx = createIPX();
 const path = require("path");
 
-var models = [];
+console.log("NODE_ENV : ", process.env.NODE_ENV);
 
+/*
+function checkVar()
+{
 
-function implementRouter(app, conf) {
-  var routerFilenames = glob
-    .sync(config.modelsPath + "/*.js")
-    .map(filename => path.basename(filename));
-
-  routerFilenames.forEach(router => {
-    if (!conf[router])
-      router = {
-        name: router,
-        path: router,
-        suffix: router
-      };
-    else router = conf[router];
-
-    var routerModel = require(`@models/${router.name}`);
-
-    try {
-      var routerObject = routerModel.getRouter();
-      models.push(routerModel);
-
-      console.log(routerModel.name + "  -> /api/" + routerModel.name);
-      app.use(`/${routerModel.name}`, routerObject);
-    } catch (e) {
-      console.warn(router.name, " wrong model object > can't generate router");
-      //console.log(e);
-    }
-  });
-
-  //activeController();
-
-  models.forEach(model => {
-    model.activeController();
-  });
+const {
+  //STRIPE_KEY,
+  //STRIPE_PUBKEY,
+  //EMAIL_ADMIN,
+  //EMAIL_DEV,
+  //CONTACT_MAIL,
+  //SENDER_MAIL,
+  //SENDER_MAIL_PSW
+} = process.env;
+if (
+  !STRIPE_KEY ||
+  !STRIPE_PUBKEY ||
+  !EMAIL_ADMIN ||
+  !EMAIL_DEV ||
+  !CONTACT_MAIL ||
+  !SENDER_MAIL ||
+  !SENDER_MAIL_PSW
+) {
+  console.error(".env variable not defined");
+  return 1;
 }
-/* *** */
+}
+*/
 
-var app = express();
+class ApiGenerator {
+  _app;
+  apiApplication = require("./app");
 
-app
-  .use("/static", express.static("public"))
-  .use(bodyParser.urlencoded({ extended: false }))
-  .use(bodyParser.json())
-  .use(
-    session({
-      secret: "lichen-session",
-      saveUninitialized: true,
-      store: new RedisStore({ client: redisClient }),
-      resave: true,
-      cookie: {
-        secure: false,
-        maxAge: 1000 * 60 * 60 * 8,
-        httpOnly: false,
-        sameSite: "lax"
-      }
-    })
-  )
-  .use((req, res, next) => {
-    console.log("PAGE " + req.url);
-    console.log(req.body);
-    next();
-  });
+  constructor({ dirModel }) {
+    this._app = express();
 
+    this.configureMiddleware();
 
-implementRouter(app, config.router);
+    this.internApp = require("./app");
 
-app.use((req, res) => {
-  res.status(404).json("PAGE " + req.url + " unexist");
-});
+    dirModel = path.resolve(dirModel);
+    console.log("path resolve in apigenerator", dirModel);
 
-module.exports = app;
+    apiApplication.attachAppExpress(this._app);
+    apiApplication.activeRouter(
+      {
+        "event-invit": {
+          name: "event-invit",
+          path: "event-invit",
+          suffix: "EventInvit"
+        }
+      },
+      dirModel
+    );
+    apiApplication.activeController();
+
+    this._app.use((req, res) => {
+      res.status(404).json("PAGE " + req.url + " unexist");
+    });
+  }
+
+  configureMiddleware() {
+    this._app
+      .enable("trust proxy")
+      .use("/_ipx", createIPXMiddleware(ipx))
+      .use("/static", express.static("static"))
+      .use(bodyParser.urlencoded({ extended: false }))
+      .use(bodyParser.json())
+      .use(
+        session({
+          secret: "editions-brunodoucey-session",
+          saveUninitialized: true,
+          proxy: process.env.NODE_ENV == "production",
+          store: new RedisStore({ client: redisClient }),
+          resave: true,
+          cookie: {
+            secure: process.env.NODE_ENV == "production",
+
+            maxAge: 1000 * 60 * 60 * 8,
+            httpOnly: false
+          }
+        })
+      )
+      .use((req, res, next) => {
+        console.log("PAGE " + req.url);
+        console.log(req.body);
+        next();
+      });
+  }
+
+  getApi() {
+    return this._app;
+  }
+}
+
+module.exports = ApiGenerator;
