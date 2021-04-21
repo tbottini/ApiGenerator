@@ -4,5 +4,7 @@ module.exports = {
   ERROR: require("./api/srcs/parse/error"),
   REGEX: require("./api/srcs/parse/regex"),
   mjml: require("./api/srcs/email/mjml"),
+  hash: require("./api/srcs/parse/hash"),
+
   Model: require("./api/srcs/model")
 };

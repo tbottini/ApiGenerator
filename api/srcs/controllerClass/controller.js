@@ -50,7 +50,7 @@ class Controller {
       if (!uniqueEntryExist.length) this.db.run(this.uniqueKeyStr);
     }
 
-    this.initCallback?.call();
+    if (this.initCallback) this.initCallback(this);
   }
 
   /**
@@ -204,10 +204,10 @@ class Controller {
 
   /**
    *
-   * @param {*} filter //TODO make a filter class
-   * @param {*} sort //TODO make a sort class
-   * @param {*} research
-   * @param {*} relation
+   * @param {Array} filter //TODO make a filter class
+   * @param {Array} sort //TODO make a sort class
+   * @param {Array} research
+   * @param {Array} relation
    * @returns
    */
   async getAll(filter, sort, research, relation) {

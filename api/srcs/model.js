@@ -34,7 +34,8 @@ class Model {
       attr: this.attr,
       uniqueKey: this.uniqueKey,
       relation: parameters.relation,
-      dictRelation: dictRelation
+      dictRelation: dictRelation,
+      onInit: parameters.init
     };
 
     if (!parameters.Controller)
