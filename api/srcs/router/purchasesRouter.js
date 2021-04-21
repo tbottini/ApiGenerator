@@ -208,9 +208,7 @@ class PurchasesRouter extends Router {
 
         return {
           title: purchase.title,
-          src:
-            "https://editions-brunodoucey.com/api/static/image/" +
-            purchase.illustration,
+          src: "https://lichen.com/api/static/image/" + purchase.illustration,
           price: priceStr
         };
       }),

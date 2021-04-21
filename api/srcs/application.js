@@ -6,8 +6,11 @@ const path = require("path");
  * handles different models
  */
 class Application {
-  constructor({ database = "sqlite", config, app, name }) {
+  constructor({ database = "postgresql", config, app, name }) {
     const DatabaseController = require("./database/" + database);
+
+    if (name == null) console.warn("Application: name attribute isn't provide");
+    if (app == null) console.error("Application: express app isn't provide");
 
     this.db = new DatabaseController(config);
     this.app = app;
@@ -17,70 +20,61 @@ class Application {
 
     this.init();
 
-    console.log("Api ", this.name, " was created ", process.env.NODE_ENV);
+    console.log("Api ", this.name, " was created");
   }
 
-  attachAppExpress(app) {
-    this.app = app;
-  }
-
-  getRouters() {
-    return this.routers;
-  }
-
-  getModels() {
-    return this.models;
-  }
-
-  getApp() {
-    return this.app;
+  get database() {
+    return this.db;
   }
 
   init() {}
 
-  getDatabase() {
-    return this.db;
+  /**
+   *
+   * @param {Object} conf for fetch each model
+   * @param {String} modelPath the path of directory of models
+   */
+  active(modelPath) {
+    this._fetchModels(modelPath);
+    this.activeModel();
   }
 
-  activeRouter(conf, modelPath) {
-    this.implementRouter(conf, modelPath);
-  }
-
-  activeController() {
+  activeModel() {
     this.models.forEach(model => {
-      model.activeController();
+      model.active(this.db);
     });
   }
 
   //search and get router in special folders
-  implementRouter(conf, dirname) {
+
+  _fetchModels(dirname) {
     if (!dirname) dirname = "./models/";
     if (dirname[dirname.length - 1] != "/") dirname += "/";
     dirname += "*.js";
 
-    console.log(dirname);
-    console.log(glob.sync(dirname));
+    console.log("Application: models find in " + dirname);
 
     glob.sync(dirname).forEach(filename => {
-      /*if (!conf[router])
-          router = {
-            name: router,
-            path: router,
-            suffix: router
-          };
-        else router = conf[router];*/
-
-      //console.log(router.name);
       var model = require(filename);
       const name = path.basename(filename);
+
+      const nameRoute = name
+        .split(".")
+        .slice(0, -1)
+        .join(".");
 
       try {
         var router = model.getRouter();
         this.models.push(model);
 
-        this.app.use(`/${name}`, router);
+        this.app.use(`/${nameRoute}`, router);
+        console.log("Application: start listen /" + nameRoute);
       } catch (e) {
-        console.warn(name, " wrong model object > can't generate router");
+        console.warn(
+          "Application:",
+          name,
+          " wrong model object > can't generate router"
+        );
         //console.log(e);
       }
     });

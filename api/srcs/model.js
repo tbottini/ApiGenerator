@@ -41,8 +41,6 @@ class Model {
       this.controller = new Controller(controllerParameter);
     else this.controller = new parameters.Controller(controllerParameter);
 
-    this.controller.init();
-
     const routerParameters = {
       name: this.name,
       attr: this.attr,
@@ -104,12 +102,25 @@ class Model {
     console.log("Model " + this.name + ": " + msg);
   }
 
-  activeController() {
+  activeController(database) {
     this.controller.linkRelation();
+    this.controller.linkDatabase(database);
   }
 
   activeRouter() {
     console.error("active router function isnt defined");
+  }
+
+  /**
+   * active the controller and the router of the model
+   *
+   * @param {DatabaseController} database of api
+   */
+  active(database) {
+    if (database == null)
+      console.error("Model: " + this.name + " database isn't provided");
+    this.activeController(database);
+    //this.activeRouter();
   }
 
   post(path, callback) {

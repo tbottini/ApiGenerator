@@ -1,21 +1,24 @@
-const app = require("../../app");
-const db = app.getDatabase();
 const ERROR = require("../parse/error");
-const { abort } = require("process");
 const ControllerPostgresql = require("./controllerPostgresql");
-
+const fs = require("fs");
 //provide data in intern interaction
 
 const DEBUG = true;
 
 /**
- * 
+ *
  */
 class Controller {
-  constructor({ name, dictRelation, attr, relation, uniqueKey = false }) {
+  constructor({
+    name,
+    dictRelation,
+    attr,
+    relation,
+    uniqueKey = false,
+    onInit
+  }) {
     this.name = name;
     this.attr = attr;
-    this.db = db;
 
     this.dict = {};
     this.attr.forEach(attributes => (this.dict[attributes.name] = attributes));
@@ -28,24 +31,47 @@ class Controller {
     this.setUniqueKey(uniqueKey);
     this.relationSql = this.ctrl.getRelationSql(relation);
     this.relation = dictRelation;
+    this.initCallback = onInit;
   }
 
   //db actions
-  async init() {
-    await db.init(this.ctrl.getCreateSql());
+  async _init() {
+    if (this.db == null)
+      console.error(
+        "Controller: init was called whereas database wasn't initialised"
+      );
+
+    await this.db.init(this.ctrl.getCreateSql());
 
     if (this.uniqueKey) {
-      const uniqueEntryExist = await db.all(
+      const uniqueEntryExist = await this.db.all(
         "select id from " + this.name + "  limit 1"
       );
-      if (!uniqueEntryExist.length) db.run(this.uniqueKeyStr);
+      if (!uniqueEntryExist.length) this.db.run(this.uniqueKeyStr);
     }
+
+    this.initCallback?.call();
+  }
+
+  /**
+   * link to thethis.db when she is ready
+   */
+  linkDatabase(database) {
+    this.db = database;
+    this._init();
   }
 
   //get all model of relation
   linkRelation() {
     this.relationSql.forEach(rel => {
-      rel.model = require("../../model/" + rel.table_name);
+      const relPath = "../../model/" + rel.table_name;
+
+      if (fs.existsSync(relPath)) rel.model = require(relPath);
+      else {
+        console.error("Controller: Relation " + relPath + " doesn't exist");
+        process.abort();
+      }
+
       if (!rel.model) {
         console.error(
           "controller -- linkRelation : ",
@@ -96,19 +122,19 @@ class Controller {
     if (error) return error;
 
     const results = await Promise.all([
-      db.get(`SELECT MAX(id) FROM ${this.name}`),
-      db.get(`SELECT nextval('${this.name}_id_seq')`)
+      this.db.get(`SELECT MAX(id) FROM ${this.name}`),
+      this.db.get(`SELECT nextval('${this.name}_id_seq')`)
     ]);
 
     if (results[0].max > parseInt(results[1].nextval)) {
-      await db.run(
+      await this.db.run(
         `SELECT setval('${this.name}_id_seq', (SELECT MAX(id) FROM ${this.name})+1)`
       );
     }
 
-    const res = await db.run(this.STRINSERT, values);
+    const res = await this.db.run(this.STRINSERT, values);
     if (res.error) return ERROR.server;
-    return await db.get(
+    return await this.db.get(
       "select * from " + this.name + " order by id desc limit 1"
     );
   }
@@ -125,7 +151,7 @@ class Controller {
       if (e[attr]) return { error: attr + " already exist", code: 1 };
     }
 
-    await db.run(
+    await this.db.run(
       "update " +
         this.name +
         " set " +
@@ -138,7 +164,7 @@ class Controller {
   }
 
   async set(attrSelect, valueSelect, attr, value) {
-    await db.run("update \\? set \\? = \\? where \\? = \\?", [
+    await this.db.run("update \\? set \\? = \\? where \\? = \\?", [
       this.name,
       attr,
       value,
@@ -154,7 +180,7 @@ class Controller {
     if (!research) research = this.ctrl.getDefaultSql();
 
     const getSql = this.ctrl.get(research, this.name);
-    var myObj = await db.get(getSql, [attr, value]);
+    var myObj = await this.db.get(getSql, [attr, value]);
 
     if (!myObj) return myObj;
 
@@ -163,7 +189,7 @@ class Controller {
     if (attr == "id" && relation) {
       for (var i = 0; i < this.relationSql.length; i++) {
         var relation = this.relationSql[i];
-        var relationObj = await db.all(relation.sql + value);
+        var relationObj = await this.db.all(relation.sql + value);
         if (!relationObj) {
           console.error(
             "controller -- get : relation link unwork no entry found, bad name of table ?"
@@ -177,12 +203,12 @@ class Controller {
   }
 
   /**
-   * 
+   *
    * @param {*} filter //TODO make a filter class
-   * @param {*} sort //TODO make a sort class 
+   * @param {*} sort //TODO make a sort class
    * @param {*} research
-   * @param {*} relation 
-   * @returns 
+   * @param {*} relation
+   * @returns
    */
   async getAll(filter, sort, research, relation) {
     var filterStr = "",
@@ -193,7 +219,7 @@ class Controller {
     if (filter) filterStr = this.ctrl.filterSql(filter);
     if (sort) sortStr = this.ctrl.sort(sort);
     if (relation) innerStr = this.ctrl.innerJoinSql(relation);
-    var collection = await db.all(
+    var collection = await this.db.all(
       this.ctrl.getAllSql(research, filterStr, sortStr, innerStr)
     );
     if (collection.error) {
@@ -204,19 +230,21 @@ class Controller {
   }
 
   async delete(id) {
-    return await db.run("delete from " + this.name + " where id = '\\?'", [id]);
+    return await this.db.run("delete from " + this.name + " where id = '\\?'", [
+      id
+    ]);
   }
-
 
   /**
    * decodes an object to make it readable
    * it will call the dedicade decode function of each data type
-   * @param {Object} object 
-   * @returns the object decode 
+   * @param {Object} object
+   * @returns the object decode
    */
   decodeObject(object) {
     Object.keys(object).map(attrName => {
-      if (this.dict[attrName]) object[attrName] = this.dict[attrName].decode(object[attrName]);
+      if (this.dict[attrName])
+        object[attrName] = this.dict[attrName].decode(object[attrName]);
     });
     return object;
   }
@@ -230,17 +258,18 @@ class Controller {
     return collection.map(element => this.decodeObject(element));
   }
 
-/**
- * will search items in database depending on the token provide
- * @param {Attr} attr 
- * @param {String} token 
- * @returns 
- */
+  /**
+   * will search items in database depending on the token provide
+   * @param {Attr} attr
+   * @param {String} token
+   * @returns
+   */
   async search(attr, token) {
-    if (!attr)
-      return ERROR.attrUnexist(attr);
+    if (!attr) return ERROR.attrUnexist(attr);
 
-    return this.decodeCollection(await db.all(this.ctrl.searchSql(attr, token)));
+    return this.decodeCollection(
+      await this.db.all(this.ctrl.searchSql(attr, token))
+    );
   }
 }
 

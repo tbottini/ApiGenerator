@@ -27,7 +27,7 @@ class MailSender {
     addr,
     content,
     attachments,
-    sender = "no-rply@editions-brunodoucey.com"
+    sender = "no-rply@lichen.com"
   ) {
     var mailOptions = {
       from: sender,

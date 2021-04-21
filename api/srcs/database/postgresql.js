@@ -47,6 +47,12 @@ class PsqlController {
       });
 
       this.client.connect().then(() => {
+        console.log(
+          "Postgresql: Client connect to " +
+            this.database +
+            " port " +
+            this.port
+        );
         if (this.callbackConnect) this.callbackConnect(this);
         return resolve(this);
       });

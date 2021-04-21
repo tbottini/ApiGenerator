@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require("path");
 
 function generateBackofficePage(model) {
   fs.writeFileSync(
@@ -38,22 +39,38 @@ function generateBackofficePage(model) {
 export default function Backoffice(moduleOptions) {
   var options = this.options.backoffice;
 
-  var modelPath = this.options.modelsPath || "../../models/"
+  if (options == null) return;
 
+  console.log(options);
+
+  const DEFAULT_PATH = "./api/models/";
+
+  const modelPath = path.resolve(options.modelsPath || DEFAULT_PATH) + "/";
   var modelObject = [];
 
-  options.tables.forEach(model => {
-    modelObject.push({
-      name: model.namePrint || model.name,
-      conf: require(modelPath + model.name + ".js").getBackoffice()
-    });
-  });
+  modelObject = options.tables
+    .map(model => {
+      try {
+        const backofficeConfiguration = require(modelPath +
+          model.name +
+          ".js").getBackoffice();
+
+        return {
+          name: model.namePrint || model.name,
+          conf: backofficeConfiguration
+        };
+      } catch (e) {
+        console.error(`the file ${model.name} doesn't return a Model object`);
+        return null;
+      }
+    })
+    .filter(object => object); // return only non null object
 
   modelObject.forEach(model => {
     generateBackofficePage(model);
   });
 
-  this.nuxt.hook("ready", async nuxt => {
+  this.nuxt.hook("ready", async () => {
     console.log("- Backoffice generate");
   });
 }

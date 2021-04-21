@@ -6,9 +6,10 @@ let RedisStore = require("connect-redis")(session);
 let redisClient = redis.createClient();
 require("dotenv").config();
 const { createIPX, createIPXMiddleware } = require("ipx");
-const apiApplication = require("./app");
 const ipx = createIPX();
 const path = require("path");
+
+const Application = require("./srcs/application");
 
 console.log("NODE_ENV : ", process.env.NODE_ENV);
 
@@ -42,31 +43,29 @@ if (
 
 class ApiGenerator {
   _app;
-  apiApplication = require("./app");
 
-  constructor({ dirModel }) {
+  constructor({ dirModel, database, name }) {
+    if (database == null || database.name == null)
+      return console.error("no database attribute was provide");
+    if (name == null)
+      console.warn("ApiGenerator : name attribute isn't provide");
+
     this._app = express();
 
     this.configureMiddleware();
 
-    this.internApp = require("./app");
+    this.internApp = new Application({
+      name: name,
+      database: database.type || "postgresql",
+      config: {
+        database: database.name
+      },
+      app: this._app
+    });
 
     dirModel = path.resolve(dirModel);
-    console.log("path resolve in apigenerator", dirModel);
 
-    apiApplication.attachAppExpress(this._app);
-    apiApplication.activeRouter(
-      {
-        "event-invit": {
-          name: "event-invit",
-          path: "event-invit",
-          suffix: "EventInvit"
-        }
-      },
-      dirModel
-    );
-    apiApplication.activeController();
-
+    this.internApp.active(dirModel);
     this._app.use((req, res) => {
       res.status(404).json("PAGE " + req.url + " unexist");
     });
@@ -81,7 +80,7 @@ class ApiGenerator {
       .use(bodyParser.json())
       .use(
         session({
-          secret: "editions-brunodoucey-session",
+          secret: "lichen-session",
           saveUninitialized: true,
           proxy: process.env.NODE_ENV == "production",
           store: new RedisStore({ client: redisClient }),
@@ -103,6 +102,11 @@ class ApiGenerator {
 
   getApi() {
     return this._app;
+  }
+
+  listen(port) {
+    console.log("Api: listen on port " + port);
+    this._app.listen(port);
   }
 }
 
