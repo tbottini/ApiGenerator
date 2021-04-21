@@ -221,9 +221,11 @@ class PurchasesRouter extends Router {
   }
 
   sendMailRecap(to, purchase) {
+    //TODO add a general state app
     mjml
       .panierUser(purchase)
-      .send(to, "Recapitulatif Achat Editions Bruno Doucey");
+
+      .send(to, "Recapitulatif Achat ");
 
     const { CONTACT_MAIL } = process.env;
     console.log("contact mail is ", CONTACT_MAIL);
