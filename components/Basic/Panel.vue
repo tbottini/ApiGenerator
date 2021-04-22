@@ -1,11 +1,10 @@
 <template>
   <div id="panel" @mousemove="mousemove">
-    <Video v-if="isVideo" :src="source" :anchor="anchorVideo" />
+    <Video v-if="isVideo" :src="source" />
     <img
       :class="{ img: !accueil, homepage: accueil }"
       :style="objectPosition"
-      :src="'/api/static/image/' + source"
-      :alt="project.name || project.description"
+      :src="'/api/_ipx/static/image/' + source"
       v-else
     />
     <Descr
@@ -34,22 +33,22 @@ import Project from "~/assets/class/Project";
 export default {
   props: {
     project: {
-      type: Object,
-      required: true,
+      type: Project,
+      required: true
     },
     accueil: {
       type: Boolean,
-      default: false,
+      default: false
     },
     arrow: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   data() {
     return {
       timeout: null,
-      activeArrows: false,
+      activeArrows: false
     };
   },
   methods: {
@@ -62,7 +61,7 @@ export default {
       this.timeout = setTimeout(() => {
         this.activeArrows = false;
       }, TIMESTAMP);
-    },
+    }
   },
   computed: {
     style() {
@@ -82,15 +81,15 @@ export default {
     },
     objectPosition() {
       var objectPosition = `objectPosition: ${this.project.anchorX}% ${this.project.anchorY}%`;
+      console.log(
+        "anchor ",
+        this.project.anchorX,
+        this.project.anchorY,
+        objectPosition
+      );
       return objectPosition;
-    },
-    anchorVideo() {
-      return {
-        x: this.project.anchorX,
-        y: this.project.anchorY,
-      };
-    },
-  },
+    }
+  }
 };
 </script>
 <style scoped>

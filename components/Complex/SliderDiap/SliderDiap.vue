@@ -2,27 +2,41 @@
   <div :class="sliderClass">
     <template v-if="!fullscreen">
       <div
+        v-if="btnsActive"
+        @mouseover="btnsActive = true"
+        @mouseleave="btnsActive = false"
         @click="prev"
-        :class="'btns left btns show-toggle'"
+        :class="'btns left'"
       >
         <icon :class="'svg-' + $mq" :icon="['fas', 'chevron-left']" />
       </div>
-      <div @click="next" :class="'btns right show-toggle'">
+      <div
+        v-if="btnsActive"
+        @mouseover="btnsActive = true"
+        @mouseleave="btnsActive = false"
+        @click="next"
+        :class="'btns right'"
+      >
         <icon :class="'svg-' + $mq" :icon="['fas', 'chevron-right']" />
       </div>
       <div
+        v-if="btnsActive"
+        @mouseover="btnsActive = true"
+        @mouseleave="btnsActive = false"
         @click="setFullscreen(true)"
-        :class="'btns right-bottom show-toggle'"
+        :class="'btns right-bottom'"
       >
         <icon
           :class="'svg-' + $mq"
           :icon="['fas', fullscreen ? 'compress' : 'expand']"
         />
       </div>
-      <div style="min-width: 100%; min-height: 100%">
+      <div style="min-width: 100%; min-height: 100%;">
         <transition name="fade" mode="out-in">
           <div @click="next" :key="currentNumber">
             <img
+              @mouseover="btnsActive = true"
+              @mouseleave="btnsActive = false"
               :src="currentImage"
               v-on:mouseover="stopRotation"
               v-on:mouseout="startRotation"
@@ -32,17 +46,11 @@
       </div>
     </template>
     <div class="fullscreen" v-else>
-      <div style="min-width: 100%; min-height: 60%; max-height: 80%">
-        <div @click="next" :key="currentNumber">
-          <img
-            :src="currentImage"
-            class="img-fullscreen"
-            v-on:mouseover="stopRotation"
-            v-on:mouseout="startRotation"
-          />
-        </div>
-      </div>
-      <div :class="'button-fullscreen-' + $mq">
+      <div
+        style="position: fixed; bottom: 4%; display: flex; flex-direction: row; color: white; width: 100%;
+			justify-content: center;;
+		"
+      >
         <icon
           :class="'svgf-' + $mq"
           @click="prev"
@@ -59,6 +67,17 @@
           :icon="['fas', 'chevron-right']"
         />
       </div>
+
+      <div style="min-width: 100%; min-height: 60%; max-height: 80%;">
+        <div @click="next" :key="currentNumber">
+          <img
+            :src="currentImage"
+            class="img-fullscreen"
+            v-on:mouseover="stopRotation"
+            v-on:mouseout="startRotation"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -71,6 +90,7 @@ export default {
       delay: 100000,
       canRotate: false,
       fullscreen: false,
+      btnsActive: false
     };
   },
 
@@ -79,12 +99,12 @@ export default {
   },
 
   props: {
-    slide: {},
+    slide: {}
   },
   watch: {
     fullscreen(value) {
       this.$emit("fullscreen", value);
-    },
+    }
   },
 
   methods: {
@@ -113,29 +133,29 @@ export default {
       }
     },
     setFullscreen(val) {
-      console.log("set full screen");
       this.fullscreen = val;
+      console.log("show");
       this.$store.commit("menuPrint", !val);
-    },
+    }
   },
   beforeDestroy() {
     this.$store.state.logoShow = true;
   },
 
   computed: {
-    currentImage: function () {
+    currentImage: function() {
       return (
-        "/api/static/image/" +
+        "/api/static/api/_ipx/static/image/" +
         this.slide[Math.abs(this.currentNumber) % this.slide.length].path
       );
     },
     sliderClass() {
       return {
         diapo: !this.fullscreen,
-        "diapo-fullscreen": this.fullscreen,
+        "diapo-fullscreen": this.fullscreen
       };
-    },
-  },
+    }
+  }
 };
 </script>
 <style scoped>
@@ -152,16 +172,6 @@ export default {
   position: relative;
 }
 
-.diapo:hover > .show-toggle
-{
-  visibility: visible;
-}
-
-.show-toggle
-{
-  visibility: hidden;
-}
-
 .diapo-fullscreen {
   width: 100%;
   left: 0;
@@ -175,14 +185,10 @@ export default {
 
 img {
   object-fit: contain;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
   width: 100%;
-  height: 100%;
+  min-width: 100%;
   cursor: pointer;
+  max-height: 100vh;
 }
 
 .slider-diap {
@@ -197,33 +203,12 @@ a {
   position: absolute;
   cursor: pointer;
   color: white;
-  z-index: 10;
 }
 
 .btns-fullscreen {
   position: fixed;
   color: white;
   bottom: 0;
-}
-
-.button-fullscreen-desktop,
-.button-fullscreen-mobile {
-  z-index: 10;
-  position: fixed;
-  bottom: 4%;
-  display: flex;
-  flex-direction: row;
-  color: white;
-  justify-content: center;
-}
-
-.button-fullscreen-mobile {
-  left: 0;
-  width: 100%;
-}
-
-.button-fullscreen-desktop {
-  right: 10%;
 }
 
 .left,
@@ -247,19 +232,16 @@ a {
   width: 30px;
   height: 30px;
   margin: 5px;
-  z-index: 10;
 }
 
 .svg-mobile {
   width: 4vw;
   height: 4vw;
   margin: 6px;
-  z-index: 10;
 }
 
 .svgf,
 .svgf-desktop {
-  z-index: 10;
   width: 40px;
   height: 40px;
   margin: 10px;

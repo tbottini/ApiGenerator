@@ -1,8 +1,8 @@
 <template>
-    <div>
-        <InputText v-model="currentPassword" :hidden="true">Current Password</InputText>
-        <InputText v-model="newPassword" :hidden="true">New Password</InputText>
-        <Button @click.native="changePassword">Change Password</Button>
+    <div class="inputSetter">
+        <InputText v-model="currentPassword" :hidden="true">Mot de Passe Actuel</InputText>
+        <InputText v-model="newPassword" :hidden="true">Nouveau Mot de Passe</InputText>
+        <Button @click.native="changePassword"><icon :icon="['fas', 'edit']" /></Button>
     </div>
 </template>
 <script>
@@ -36,5 +36,7 @@ export default {
     }
 }
 </script>
-<style>
+<style lang="sass" scoped>
+@import '~/assets/manage'
+
 </style>

@@ -1,15 +1,22 @@
 <template>
-    <div>
-        <img :src="src" />
-    </div>
+  <figure class="image">
+    <img class="img" :style="'object-fit: ' + this.fit" :src="src" />
+  </figure>
 </template>
 <script>
 export default {
-    props: {
-        src: {
-            type: String,
-            required: true
-        }
+  data() {
+    return {};
+  },
+  props: {
+    src: {
+      type: String,
+      required: true
+    },
+    fit: {
+      type: String,
+      default: "cover"
     }
-}
+  }
+};
 </script>

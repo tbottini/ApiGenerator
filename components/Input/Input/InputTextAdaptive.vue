@@ -36,6 +36,7 @@ export default {
 
         focus() // must be implement
         {
+            console.log("ref");
             this.$refs.paragraph.focus();
         },
 

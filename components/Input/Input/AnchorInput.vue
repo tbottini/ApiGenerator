@@ -21,6 +21,7 @@
 export default {
     methods: {
         change(val) {
+            console.log("change", val);
             this.$emit('change', val);
         },
         transform(i) {
