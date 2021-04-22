@@ -230,9 +230,7 @@ class PurchasesRouter extends Router {
     const { CONTACT_MAIL } = process.env;
     console.log("contact mail is ", CONTACT_MAIL);
 
-    mjml
-      .panierAdmin(purchase)
-      .send(CONTACT_MAIL, "Achat - Éditions Bruno Doucey");
+    mjml.panierAdmin(purchase).send(CONTACT_MAIL, "Achat -  Lichen");
     return { msg: "the email has been sent" };
   }
 

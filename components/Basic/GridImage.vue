@@ -1,7 +1,7 @@
 <template>
   <div ref="grid">
     <div :class="grid">
-      <div v-for="(e, i) in elementsFilter" :key="e.id">
+      <div v-for="e in elementsFilter" :key="e.id">
         <slot v-bind:cell="e">
           <nuxt-link :to="e.path || '/'">
             <figure class="image is-4by5">
