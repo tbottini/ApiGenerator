@@ -5,6 +5,12 @@ const assert = require("assert");
 
 const DEBUG = false;
 
+function errorSyntax(variable, char) {
+  return (
+    "Model: error variable " + variable + " contain character '" + char + "'"
+  );
+}
+
 class Model {
   constructor(parameters) {
     this.debug = parameters.debug || DEBUG;
@@ -17,6 +23,8 @@ class Model {
     this.name = parameters.name;
     this.attr = this.inflate(parameters.attr);
     this.uniqueKey = parameters.uniqueKey;
+
+    this.checkSyntax();
 
     var dictRelation = {};
     parameters.relation?.forEach(rel => (dictRelation[rel.table_get] = rel));
@@ -67,6 +75,19 @@ class Model {
 
   checkParams(p, a) {
     if (!p[a]) return assert(p[a] + " is missing");
+  }
+
+  checkSyntax() {
+    if (this.name.includes("-")) {
+      console.error(errorSyntax("name of model " + this.name, "-"));
+      process.abort();
+    }
+    this.attr.forEach(a => {
+      if (a.name.includes("-")) {
+        console.error(errorSyntax(a.name, "-"));
+        process.abort();
+      }
+    });
   }
 
   getController() {

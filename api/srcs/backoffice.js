@@ -1,6 +1,6 @@
 //const { backoffice } = require("../model/config");
 
-const DEBUG = true;
+const DEBUG = false;
 
 class Backoffice {
   constructor({ name, attr, uniqueKey, conf, relation }) {
@@ -86,7 +86,7 @@ class Backoffice {
         return {
           attr: a.name,
           type: a.type,
-          namePrint: a.namePrint,
+          namePrint: a.namePrint
         };
       });
   }
@@ -99,7 +99,7 @@ class Backoffice {
 
     const inputs = this.generateInput();
 
-    this.log(attr);
+    if (DEBUG) this.log(attr);
 
     return {
       inputs: inputs,

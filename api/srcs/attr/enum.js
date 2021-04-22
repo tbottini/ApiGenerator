@@ -1,4 +1,3 @@
-const { NULL } = require("node-sass");
 const Int = require("./int");
 
 class Enum extends Int {
