@@ -83,15 +83,17 @@ class Model {
 		if (!p[a]) return assert(p[a] + ' is missing')
 	}
 
+	/**
+	 * check if attribute does not contain '-' or maj
+	 * only minus and underscore
+	 */
 	checkSyntax() {
-		if (this.name.includes('-')) {
-			console.error(errorSyntax('name of model ' + this.name, '-'))
-			process.abort()
+		if (!/^[a-z_]*$/.test(this.name)) {
+			throw new Error(errorSyntax('name of model ' + this.name, '-'))
 		}
 		this.attr.forEach((a) => {
-			if (a.name.includes('-')) {
-				console.error(errorSyntax(a.name, '-'))
-				process.abort()
+			if (!/^[a-z_]*$/.test(a.name)) {
+				throw new Error(errorSyntax('name of model ' + this.name, '-'))
 			}
 		})
 	}
@@ -108,7 +110,11 @@ class Model {
 		return this.backoffice.generateBackofficeConf()
 	}
 
-	//trad scheme to attr
+	/**
+	 * Trad scheme (set of attribute) to attr
+	 * @param {*} attributes
+	 * @returns
+	 */
 	inflate(attributes) {
 		var attr = []
 		attributes.forEach((attribute) => {
