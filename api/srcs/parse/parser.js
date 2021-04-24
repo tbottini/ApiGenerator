@@ -1,6 +1,6 @@
-const Entities = require('html-entities').AllHtmlEntities
-const entities = new Entities()
-const { encode, decode } = entities
+/*const Entities = require('html-entities').AllHtmlEntities
+const entities = new Entities()*/
+const { encode, decode } = require('html-entities')
 const REGEX = require('./regex')
 /*
     - tools for parsing, check string, date
