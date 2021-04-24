@@ -1,15 +1,14 @@
-const Model = require("../model");
-const PurchasesController = require("../controller/purchasesController");
-const PurchasesRouter = require("../router/purchasesRouter");
+const Model = require('../model')
+const PurchasesController = require('../controller/purchasesController')
+const PurchasesRouter = require('../router/purchasesRouter')
 
-class PurchasesModel extends Model 
-{
-    constructor(param) {
-        param.Controller = PurchasesController;
-        param.Router = PurchasesRouter;
+class PurchasesModel extends Model {
+	constructor(param) {
+		param.Controller = PurchasesController
+		param.Router = PurchasesRouter
 
-        super(param);
-    }
+		super(param)
+	}
 }
 
-module.exports = PurchasesModel;
+module.exports = PurchasesModel

@@ -1,5 +1,5 @@
 <template>
-  <button :class="'button-' + $mq"><slot></slot></button>
+	<button :class="'button-' + $mq"><slot></slot></button>
 </template>
 <style lang="sass" scoped>
 @import '~/assets/manage'

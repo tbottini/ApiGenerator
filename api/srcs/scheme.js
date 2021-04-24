@@ -1,5 +1,5 @@
-const { param } = require("jquery");
-const Attr = require("./attr");
+const { param } = require('jquery')
+const Attr = require('./attr')
 /*
 class Scheme extends Attr {
   constructor(params) {
@@ -59,10 +59,10 @@ class Scheme extends Attr {
 //on ajoute aux attribut la str
 
 class Scheme {
-  constructor(params) {
-    this.attr = params.attr;
-    this.name = params.name;
-  }
+	constructor(params) {
+		this.attr = params.attr
+		this.name = params.name
+	}
 }
 
-module.exports = Scheme;
+module.exports = Scheme

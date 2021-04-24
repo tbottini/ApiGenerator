@@ -1,13 +1,13 @@
-var db = require("./sqlite");
+var db = require('./sqlite')
 
 class SqliteController {
-  constructor() {}
+	constructor() {}
 
-  get() {}
+	get() {}
 
-  delete() {}
+	delete() {}
 
-  getAll() {}
+	getAll() {}
 
-  update() {}
+	update() {}
 }

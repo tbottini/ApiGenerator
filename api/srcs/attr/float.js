@@ -1,21 +1,21 @@
-const Attr = require("../attr");
-const error = require("../parse/error");
+const Attr = require('../attr')
+const error = require('../parse/error')
 
 class Float extends Attr {
-  constructor(param) {
-    param.variableSql = "float";
-    param.type = "float";
+	constructor(param) {
+		param.variableSql = 'float'
+		param.type = 'float'
 
-    super(param);
-  }
+		super(param)
+	}
 
-  async parse(value) {
-    return parseFloat(value);
-  }
+	async parse(value) {
+		return parseFloat(value)
+	}
 
-  wrapper(elem) {
-    return elem || "null";
-  }
+	wrapper(elem) {
+		return elem || 'null'
+	}
 }
 
-module.exports = Float;
+module.exports = Float

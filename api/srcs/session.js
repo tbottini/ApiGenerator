@@ -1,3 +1,3 @@
-var session = require("express-session")({});
+var session = require('express-session')({})
 
-module.exports = session;
+module.exports = session

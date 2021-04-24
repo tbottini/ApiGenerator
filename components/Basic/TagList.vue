@@ -1,23 +1,23 @@
 <template>
-  <p class="choosen">
-    <label v-for="(elem, i) in elements" :key="i">
-      {{ elem.name }}
-      <icon
-        @click="$emit('untag', elem)"
-        class="icon-delete"
-        :icon="['fas', 'times']"
-      />
-    </label>
-  </p>
+	<p class="choosen">
+		<label v-for="(elem, i) in elements" :key="i">
+			{{ elem.name }}
+			<icon
+				@click="$emit('untag', elem)"
+				class="icon-delete"
+				:icon="['fas', 'times']"
+			/>
+		</label>
+	</p>
 </template>
 <script>
 export default {
-  props: {
-    elements: {
-      required: true
-    }
-  }
-};
+	props: {
+		elements: {
+			required: true
+		}
+	}
+}
 </script>
 <style lang="sass" scoped>
 .icon-delete

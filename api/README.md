@@ -1,12 +1,10 @@
 framework
 
-
 lifetime:
 
-
 -Router
-    beforeUpdate
-    afterUpdate
+beforeUpdate
+afterUpdate
 
     -|| before post
 
@@ -14,32 +12,20 @@ lifetime:
         Attr Router:
             -isModel
             -
-    
-
-
 
 -Controller
 
-
 -DB
-
-
-
 
 -organisation:
 
 Modeles
-  -router
-  -controller
-  -attr
-
+-router
+-controller
+-attr
 
 Attr
 .getAttr()
 
-
-
 --> ModelAttr
-      .getAttr -> Renvoie une liste d'attr
-
-
+.getAttr -> Renvoie une liste d'attr

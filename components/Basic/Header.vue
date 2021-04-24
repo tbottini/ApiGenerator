@@ -1,17 +1,14 @@
 <template>
-    <header><slot></slot></header>
+	<header><slot></slot></header>
 </template>
 <script>
-export default {
-    
-}
+export default {}
 </script>
 <style scoped>
-header 
-{
-    font-size: 3em;
-    white-space: break-spaces;
-    margin-bottom: 10px;
-    text-transform: capitalize;
+header {
+	font-size: 3em;
+	white-space: break-spaces;
+	margin-bottom: 10px;
+	text-transform: capitalize;
 }
 </style>

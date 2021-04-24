@@ -1,1 +1,1 @@
-# Api and backoffice generators 
+# Api and backoffice generators

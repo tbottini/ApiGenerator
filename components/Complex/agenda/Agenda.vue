@@ -1,105 +1,112 @@
 <template>
-  <div class="agenda">
-    <div class="relative">
-      <div
-        class="size-100 absolute bg-color4 zindex-1"
-        :class="{
-          unvisible: eventsDaySelected.length == 0,
-        }"
-      >
-        <div class="relative">
-          <label @click="eventsDaySelected = []">
-            <icon
-              class="absolute top-1 right-1 hov-color-5 size-1-5 hov-click"
-              :icon="['fas', 'times']"
-          /></label>
-          <ul class="pt-6 pl-6">
-            <nuxt-link
-              v-for="(event, index) in eventsDaySelected"
-              class="hov-color-5 fs-2 hov-click"
-              :key="index"
-              :to="event.path"
-            >
-              <label style="font-weight: 500"
-                >{{ event.hour }}h{{ event.minutes || "" }} /</label
-              >{{ event.name }}
-            </nuxt-link>
-          </ul>
-        </div>
-      </div>
-      <div class="grid relative">
-        <div class="hidden-cell" v-for="i in indexDiffFirstDay" :key="i" />
-        <div
-          class="wrapper-cell bg-color4-hover relative hov-click"
-          v-for="(d, i) in days"
-          :key="i + 1 + indexDiffFirstDay"
-        >
-          <AgendaCell
-            :day="i + 1"
-            :event="getEvents(i)"
-            @click.native="eventsDaySelected = getEvents(i)"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
+	<div class="agenda">
+		<div class="relative">
+			<div
+				class="size-100 absolute bg-color4 zindex-1"
+				:class="{
+					unvisible: eventsDaySelected.length == 0
+				}"
+			>
+				<div class="relative">
+					<label @click="eventsDaySelected = []">
+						<icon
+							class="absolute top-1 right-1 hov-color-5 size-1-5 hov-click"
+							:icon="['fas', 'times']"
+					/></label>
+					<ul class="pt-6 pl-6">
+						<nuxt-link
+							v-for="(event, index) in eventsDaySelected"
+							class="hov-color-5 fs-2 hov-click"
+							:key="index"
+							:to="event.path"
+						>
+							<label style="font-weight: 500"
+								>{{ event.hour }}h{{
+									event.minutes || ''
+								}}
+								/</label
+							>{{ event.name }}
+						</nuxt-link>
+					</ul>
+				</div>
+			</div>
+			<div class="grid relative">
+				<div
+					class="hidden-cell"
+					v-for="i in indexDiffFirstDay"
+					:key="i"
+				/>
+				<div
+					class="wrapper-cell bg-color4-hover relative hov-click"
+					v-for="(d, i) in days"
+					:key="i + 1 + indexDiffFirstDay"
+				>
+					<AgendaCell
+						:day="i + 1"
+						:event="getEvents(i)"
+						@click.native="eventsDaySelected = getEvents(i)"
+					/>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 <script>
 export default {
-  props: {
-    events: {
-      type: Array,
-      required: true,
-    },
-    month: {
-      type: Number,
-      required: true,
-    },
-    year: {
-      type: Number,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      days: this.getMonthEvent(this.month, this.year),
-      eventsDaySelected: [],
-    };
-  },
-  watch: {
-    month(val) {
-      this.days = this.getMonthEvent(val, this.year);
-    },
-  },
-  methods: {
-    getEvents(i) {
-      return this.events.filter((e) => e.day == i + 1);
-    },
-    getDaysInMonth(month, year) {
-      month -= 1;
-      var date = new Date(year, month, 1);
-      var days = [];
-      while (date.getMonth() === month) {
-        days.push(new Date(date));
-        date.setDate(date.getDate() + 1);
-      }
-      return days;
-    },
-    getDayIndex(day) {
-      var i = day.getDay();
-      if (!i) return 6;
-      else i - 1;
+	props: {
+		events: {
+			type: Array,
+			required: true
+		},
+		month: {
+			type: Number,
+			required: true
+		},
+		year: {
+			type: Number,
+			required: true
+		}
+	},
+	data() {
+		return {
+			days: this.getMonthEvent(this.month, this.year),
+			eventsDaySelected: []
+		}
+	},
+	watch: {
+		month(val) {
+			this.days = this.getMonthEvent(val, this.year)
+		}
+	},
+	methods: {
+		getEvents(i) {
+			return this.events.filter((e) => e.day == i + 1)
+		},
+		getDaysInMonth(month, year) {
+			month -= 1
+			var date = new Date(year, month, 1)
+			var days = []
+			while (date.getMonth() === month) {
+				days.push(new Date(date))
+				date.setDate(date.getDate() + 1)
+			}
+			return days
+		},
+		getDayIndex(day) {
+			var i = day.getDay()
+			if (!i) return 6
+			else i - 1
 
-      return !i ? 6 : i - 1;
-    },
-    getMonthEvent(month, year) {
-      var days = [];
-      days = this.getDaysInMonth(month, year);
-      this.indexDiffFirstDay = this.getDayIndex(days[0]);
-      return days;
-    },
-  },
-};
+			return !i ? 6 : i - 1
+		},
+		getMonthEvent(month, year) {
+			var days = []
+			days = this.getDaysInMonth(month, year)
+			this.indexDiffFirstDay = this.getDayIndex(days[0])
+			return days
+		}
+	}
+}
 </script>
 <style lang="sass" scoped>
 @import ~/assets/lichen.sass
